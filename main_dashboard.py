@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
 📱 لوحة التحكم الرئيسية لاختبارات Pyto على الآيفون (Master Test Suite Dashboard)
-يمكنك من خلال هذا السكربت تشغيل أي اختبار مباشرة من القائمة التفاعلية!
+تتضمن نظام تنظيف تلقائي للذاكرة (Memory & Sensor Garbage Collector) لمنع أي كراش عند التشغيل السريع.
 """
 
 import sys
 import os
-import subprocess
 import time
+import gc
 
 MENU_ITEMS = [
     # 1. اختبارات العتاد والأداء
@@ -30,7 +30,7 @@ MENU_ITEMS = [
     ("13", "لوحة الرسم والألوان التفاعلية (Interactive Canvas)", "03_native_ui/interactive_canvas_drawing.py"),
 
     # 4. الذكاء الاصطناعي وعلوم البيانات
-    ("14", "اختبار معالجة الصور 4K عبر OpenCV (Computer Vision)", "04_ai_machine_learning/cv2_face_and_vision.py"),
+    ("14", "اختبار معالجة الصور عبر OpenCV (Computer Vision)", "04_ai_machine_learning/cv2_face_and_vision.py"),
     ("15", "تدريب نماذج تعلم الآلة On-Device (Scikit-Learn)", "04_ai_machine_learning/sklearn_ml_training.py"),
     ("16", "الحوسبة العلمية المتقدمة و FFT (NumPy/SciPy)", "04_ai_machine_learning/numpy_scipy_math_engine.py"),
     ("17", "توليد ورسم المخططات البيانية (Matplotlib Plots)", "04_ai_machine_learning/data_visualization_plot.py"),
@@ -48,6 +48,32 @@ MENU_ITEMS = [
 def clear_screen():
     print("\033[H\033[J", end="")
 
+def cleanup_environment():
+    """تنظيف فوري للذاكرة وإيقاف أي حساسات أو رسومات معلقة في الخلفية لمنع الكراش"""
+    # 1. إيقاف حساسات الحركة
+    try:
+        import motion
+        motion.stop_updating()
+    except Exception:
+        pass
+
+    # 2. إيقاف الـ GPS
+    try:
+        import location
+        location.stop_updating()
+    except Exception:
+        pass
+
+    # 3. إغلاق نوافذ Matplotlib البيانية
+    try:
+        import matplotlib.pyplot as plt
+        plt.close('all')
+    except Exception:
+        pass
+
+    # 4. تحرير الذاكرة العشوائية وتفريغ الكائنات غير المستخدمة
+    gc.collect()
+
 def run_script(script_rel_path):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     script_full_path = os.path.join(base_dir, script_rel_path)
@@ -56,17 +82,25 @@ def run_script(script_rel_path):
         print(f"❌ لم يتم العثور على الملف: {script_full_path}")
         return
 
+    # تنظيف مسبق قبل التشغيل
+    cleanup_environment()
+
     print("\n" + "=" * 65)
     print(f"🚀 جاري تشغيل: {script_rel_path}...")
     print("=" * 65 + "\n")
     
     try:
-        # تشغيل السكربت عبر بيئة بايثون الحالية
         with open(script_full_path, "r", encoding="utf-8") as f:
             code = compile(f.read(), script_full_path, 'exec')
             exec(code, {"__name__": "__main__", "__file__": script_full_path})
+    except KeyboardInterrupt:
+        print("\n⏹️ تم إيقاف التشغيل بواسطة المستخدم.")
     except Exception as e:
-        print(f"\n⚠️ خطأ أثناء تنفيذ السكربت: {e}")
+        print(f"\n⚠️ تنبيه أثناء تنفيذ السكربت: {e}")
+    finally:
+        # تنظيف لاحق بعد انتهاء التشغيل
+        cleanup_environment()
+        time.sleep(0.2)  # مهلة قصيرة لإعطاء نظام iOS فرصة لإغلاق الواجهات بسلاسة
 
 def main():
     while True:
@@ -88,10 +122,15 @@ def main():
         print("\n   [ 0] 🚪 خروج (Exit)")
         print("=" * 65)
 
-        choice = input("👉 أدخل رقم الخيار واضغط Enter: ").strip()
+        try:
+            choice = input("👉 أدخل رقم الخيار واضغط Enter: ").strip()
+        except (KeyboardInterrupt, EOFError):
+            print("\n👋 وداعاً!")
+            break
 
         if choice == "0" or choice.lower() == "exit" or choice.lower() == "q":
             print("\n👋 وداعاً! نتمنى لك تجربة ممتعة مع بايثون على الآيفون.\n")
+            cleanup_environment()
             break
 
         selected = None
@@ -102,7 +141,10 @@ def main():
 
         if selected:
             run_script(selected)
-            input("\n⏎ اضغط Enter للعودة إلى القائمة الرئيسية...")
+            try:
+                input("\n⏎ اضغط Enter للعودة إلى القائمة الرئيسية...")
+            except (KeyboardInterrupt, EOFError):
+                pass
         else:
             print("⚠️ خيار غير صحيح، الرجاء المحاولة مرة أخرى.")
             time.sleep(1)

@@ -103,7 +103,20 @@ def run_live_sensor_ui():
     view.add_subview(angle_label)
     view.add_subview(target_circle)
 
+    # متغير للتحكم بالحلقة عند إغلاق الشاشة
     is_running = True
+
+    def stop_all_updates():
+        nonlocal is_running
+        is_running = False
+        try:
+            motion.stop_updating()
+        except Exception:
+            pass
+
+    # تسجيل دوال الإغلاق عند خروج المستخدم من النافذة
+    view.did_disappear = stop_all_updates
+    view.will_disappear = stop_all_updates
 
     def sensor_loop():
         try:
@@ -114,8 +127,10 @@ def run_live_sensor_ui():
         center_x = target_circle.width / 2
         center_y = target_circle.height / 2
         max_offset = 80
+        max_duration = 300  # حد أمان أقصى 5 دقائق لمنع استنزاف البطارية في الخلفية
+        start_t = time.time()
 
-        while is_running:
+        while is_running and (time.time() - start_t < max_duration):
             try:
                 gravity = motion.get_gravity() or (0, 0, 0)
                 gx = gravity[0]
@@ -144,7 +159,7 @@ def run_live_sensor_ui():
                 roll = -gx * 90
                 angle_label.text = f"Pitch: {pitch:>4.1f}° | Roll: {roll:>4.1f}°"
 
-                time.sleep(0.03)  # تحديث سلس 30 FPS
+                time.sleep(0.04)  # ~25 FPS لتوفير الموارد ومنع الكراش
             except Exception:
                 break
 

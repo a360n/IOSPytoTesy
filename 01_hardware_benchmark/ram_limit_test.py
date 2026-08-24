@@ -2,7 +2,7 @@
 """
 💾 اختبار حدود استهلاك الذاكرة العشوائية (RAM Limit & Stress Test)
 يقوم هذا السكربت بحجز كتل من الذاكرة بشكل تدريجي لمعرفة كمية الرام (RAM)
-التي يسمح نظام iOS لتطبيق Pyto باستخدامها قبل أن يتم تقييدها أو إيقافها.
+التي يسمح نظام iOS لتطبيق Pyto باستخدامها بأمان قبل الوصول لحدود Jetsam.
 """
 
 import sys
@@ -14,10 +14,10 @@ def print_header(title):
     print(f"  💾 {title}")
     print("=" * 60)
 
-def test_ram_limits(step_mb=100, max_mb=6000):
+def test_ram_limits(step_mb=50, max_mb=1500):
     print_header("بدء اختبار قياس حدود الذاكرة (RAM Allocation Test)")
-    print(f"⚙️ خطوة الحجز: {step_mb} MB لكل دفعة | الحد الأقصى للاختبار: {max_mb} MB")
-    print("⚠️ ملاحظة: سيتم حجز البيانات تدريجياً وتحريرها تلقائياً بعد انتهاء الاختبار.\n")
+    print(f"⚙️ خطوة الحجز: {step_mb} MB لكل دفعة | الحد الأقصى الآمن: {max_mb} MB")
+    print("⚠️ ملاحظة: نظام iOS يقوم بإنهاء التطبيقات تلقائياً إذا تجاوزت حداً معيناً، لذا تم ضبط حد الأمان.\n")
 
     chunks = []
     total_allocated_mb = 0
@@ -26,7 +26,6 @@ def test_ram_limits(step_mb=100, max_mb=6000):
         while total_allocated_mb < max_mb:
             # حجز كتلة ذاكرة ممتلئة بالبيانات (bytearray)
             block = bytearray(step_mb * 1024 * 1024)
-            # ملء بعض الخانات لضمان حجز الذاكرة فعلياً (dirty memory)
             block[0] = 1
             block[-1] = 1
             chunks.append(block)
@@ -34,20 +33,20 @@ def test_ram_limits(step_mb=100, max_mb=6000):
             
             gb_allocated = total_allocated_mb / 1024.0
             print(f"📈 تم حجز بنجاح: {total_allocated_mb:>5} MB  ({gb_allocated:.2f} GB) ...")
-            time.sleep(0.05)
+            time.sleep(0.04)
 
-        print(f"\n🎉 مذهل! تم الوصول للحد الأقصى للاختبار بنجاح: {total_allocated_mb} MB بدون أي انهيار!")
+        print(f"\n🎉 مذهل! تم الوصول للحد الأقصى للاختبار بنجاح: {total_allocated_mb} MB ({total_allocated_mb/1024.0:.2f} GB) بدون أي مشاكل!")
 
     except MemoryError:
-        print(f"\n🚨 وصل التطبيق إلى حد الذاكرة الأقصى المسموح به (MemoryError) عند: {total_allocated_mb} MB ({total_allocated_mb/1024.0:.2f} GB)!")
+        print(f"\n🚨 وصل التطبيق إلى حد الذاكرة الأقصى (MemoryError) عند: {total_allocated_mb} MB ({total_allocated_mb/1024.0:.2f} GB)!")
     except Exception as e:
-        print(f"\n⚠️ توقف الاختبار لسبب غير متوقع: {e} عند {total_allocated_mb} MB")
+        print(f"\n⚠️ توقف الاختبار: {e} عند {total_allocated_mb} MB")
     finally:
-        print("\n🧹 جاري تحرير الذاكرة وتفعيل Garbage Collector...")
+        print("\n🧹 جاري تحرير الذاكرة وتفعيل Garbage Collector فوراً...")
         chunks.clear()
         gc.collect()
-        time.sleep(1)
-        print("✅ تم استرجاع الذاكرة بالكامل بنجاح!\n")
+        time.sleep(0.5)
+        print("✅ تم استرجاع وتنظيف الذاكرة بالكامل بنجاح!\n")
 
 if __name__ == "__main__":
     test_ram_limits()
