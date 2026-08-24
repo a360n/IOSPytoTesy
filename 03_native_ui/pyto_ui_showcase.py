@@ -17,47 +17,71 @@ def show_native_ui():
 
     # إنشاء العرض الرئيسي للواجهة
     view = ui.View()
-    view.background_color = ui.COLOR_SYSTEM_BACKGROUND
+    try:
+        view.background_color = ui.COLOR_SYSTEM_BACKGROUND
+    except Exception:
+        pass
     view.title = "📱 تجربة واجهات iOS"
 
     # عنوان رئيسي
-    title_label = ui.Label("تجربة قدرات بايثون على الآيفون")
-    title_label.font = ui.Font.bold_system_font_of_size(20)
-    title_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
+    title_label = ui.Label()
+    title_label.text = "تجربة قدرات بايثون على الآيفون"
+    try:
+        title_label.font = ui.Font.bold_system_font_of_size(20)
+        title_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
+    except Exception:
+        pass
     title_label.size = (340, 40)
     title_label.center = (view.width / 2, 40)
-    title_label.flex = [ui.FLEXIBLE_TOP_MARGIN, ui.FLEXIBLE_BOTTOM_MARGIN, ui.FLEXIBLE_LEFT_MARGIN, ui.FLEXIBLE_RIGHT_MARGIN]
 
     # نص وصفي
-    desc_label = ui.Label("هذه واجهة أصلية (Native UIKit) تم بناؤها بالكامل بكود بايثون!")
-    desc_label.font = ui.Font.system_font_of_size(14)
-    desc_label.text_color = ui.COLOR_SECONDARY_LABEL
-    desc_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
+    desc_label = ui.Label()
+    desc_label.text = "واجهة أصلية (Native UIKit) مبنية بالكامل ببايثون!"
+    try:
+        desc_label.font = ui.Font.system_font_of_size(14)
+        desc_label.text_color = ui.COLOR_SECONDARY_LABEL
+        desc_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
+    except Exception:
+        pass
     desc_label.size = (340, 30)
     desc_label.center = (view.width / 2, 75)
 
     # حقل إدخال نصي
-    text_field = ui.TextField(placeholder="اكتب شيئاً هنا لتجربته...")
+    text_field = ui.TextField()
+    try:
+        text_field.placeholder = "اكتب شيئاً هنا لتجربته..."
+        text_field.border_style = ui.TEXT_FIELD_BORDER_STYLE_ROUNDED_RECT
+    except Exception:
+        pass
     text_field.size = (300, 44)
     text_field.center = (view.width / 2, 130)
-    text_field.border_style = ui.TEXT_FIELD_BORDER_STYLE_ROUNDED_RECT
 
     # ملصق النتيجة
-    result_label = ui.Label("النتيجة ستظهر هنا...")
-    result_label.font = ui.Font.system_font_of_size(16)
-    result_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
+    result_label = ui.Label()
+    result_label.text = "النتيجة ستظهر هنا..."
+    try:
+        result_label.font = ui.Font.system_font_of_size(16)
+        result_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
+    except Exception:
+        pass
     result_label.size = (300, 30)
     result_label.center = (view.width / 2, 180)
 
     # دالة تفاعل عند الضغط على الزر
     def button_tapped(sender):
-        text = text_field.text
-        if text.strip():
+        text = getattr(text_field, 'text', '')
+        if text and text.strip():
             result_label.text = f"✨ مرحباً: {text}!"
-            result_label.text_color = ui.COLOR_SYSTEM_GREEN
+            try:
+                result_label.text_color = ui.COLOR_SYSTEM_GREEN
+            except Exception:
+                pass
         else:
             result_label.text = "⚠️ الرجاء كتابة نص أولاً!"
-            result_label.text_color = ui.COLOR_SYSTEM_RED
+            try:
+                result_label.text_color = ui.COLOR_SYSTEM_RED
+            except Exception:
+                pass
         
         # اهتزاز تفاعلي عند النقر
         try:
@@ -66,37 +90,53 @@ def show_native_ui():
             pass
 
     # زر تفاعلي رئيسي
-    btn = ui.Button(title="🚀 اضغط للتنفيذ")
+    btn = ui.Button()
+    btn.title = "🚀 اضغط للتنفيذ"
     btn.size = (200, 50)
     btn.center = (view.width / 2, 240)
-    btn.background_color = ui.COLOR_SYSTEM_BLUE
-    btn.title_color = ui.COLOR_WHITE
-    btn.corner_radius = 12
+    try:
+        btn.background_color = ui.COLOR_SYSTEM_BLUE
+        btn.title_color = ui.COLOR_WHITE
+        btn.corner_radius = 12
+    except Exception:
+        pass
     btn.action = button_tapped
 
     # شريط تمرير (Slider)
-    slider_label = ui.Label("قيمة المؤشر: 50%")
-    slider_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
+    slider_label = ui.Label()
+    slider_label.text = "قيمة المؤشر: 50%"
+    try:
+        slider_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
+    except Exception:
+        pass
     slider_label.size = (300, 30)
     slider_label.center = (view.width / 2, 310)
 
     def slider_changed(sender):
-        val = int(sender.value * 100)
+        val = int(getattr(sender, 'value', 0.5) * 100)
         slider_label.text = f"قيمة المؤشر: {val}%"
 
-    slider = ui.Slider(value=0.5)
+    slider = ui.Slider()
+    try:
+        slider.value = 0.5
+    except Exception:
+        pass
     slider.size = (260, 30)
     slider.center = (view.width / 2, 350)
     slider.action = slider_changed
 
     # مفتاح تبديل (Switch)
     def switch_changed(sender):
-        if sender.is_on:
-            view.background_color = ui.COLOR_SYSTEM_GROUPED_BACKGROUND
-        else:
-            view.background_color = ui.COLOR_SYSTEM_BACKGROUND
+        is_active = getattr(sender, 'is_on', getattr(sender, 'value', False))
+        try:
+            if is_active:
+                view.background_color = ui.COLOR_SYSTEM_GROUPED_BACKGROUND
+            else:
+                view.background_color = ui.COLOR_SYSTEM_BACKGROUND
+        except Exception:
+            pass
 
-    switch = ui.Switch(is_on=False)
+    switch = ui.Switch()
     switch.center = (view.width / 2, 410)
     switch.action = switch_changed
 
@@ -110,7 +150,7 @@ def show_native_ui():
     view.add_subview(slider)
     view.add_subview(switch)
 
-    # عرض الواجهة للمستخدم بنمط Sheet أو FullScreen
+    # عرض الواجهة للمستخدم بنمط Sheet
     print("📱 جاري عرض واجهة UIKit التفاعلية على شاشة الآيفون...")
     ui.show_view(view, mode=ui.PRESENTATION_MODE_SHEET)
 

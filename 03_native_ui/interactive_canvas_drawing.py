@@ -12,12 +12,19 @@ def show_interactive_canvas():
         return
 
     view = ui.View()
-    view.background_color = ui.COLOR_SYSTEM_BACKGROUND
+    try:
+        view.background_color = ui.COLOR_SYSTEM_BACKGROUND
+    except Exception:
+        pass
     view.title = "🖌️ اللوحة التفاعلية"
 
-    status_label = ui.Label("المس الأزرار لتغيير ألوان اللوحة")
-    status_label.font = ui.Font.bold_system_font_of_size(16)
-    status_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
+    status_label = ui.Label()
+    status_label.text = "المس الأزرار لتغيير ألوان اللوحة"
+    try:
+        status_label.font = ui.Font.bold_system_font_of_size(16)
+        status_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
+    except Exception:
+        pass
     status_label.size = (320, 30)
     status_label.center = (view.width / 2, 40)
 
@@ -26,15 +33,21 @@ def show_interactive_canvas():
     canvas_box.size = (280, 220)
     canvas_box.center = (view.width / 2, 180)
     canvas_box.corner_radius = 16
-    canvas_box.background_color = ui.COLOR_SYSTEM_INDIGO
+    try:
+        canvas_box.background_color = ui.COLOR_SYSTEM_INDIGO
+    except Exception:
+        try:
+            canvas_box.background_color = ui.COLOR_SYSTEM_BLUE
+        except Exception:
+            pass
 
     # أزرار اختيار الألوان
     colors = [
-        ("أزرق", ui.COLOR_SYSTEM_BLUE),
-        ("أخضر", ui.COLOR_SYSTEM_GREEN),
-        ("برتقالي", ui.COLOR_SYSTEM_ORANGE),
-        ("وردي", ui.COLOR_SYSTEM_PINK),
-        ("بنفسجي", ui.COLOR_SYSTEM_PURPLE),
+        ("أزرق", getattr(ui, 'COLOR_SYSTEM_BLUE', None)),
+        ("أخضر", getattr(ui, 'COLOR_SYSTEM_GREEN', None)),
+        ("برتقالي", getattr(ui, 'COLOR_SYSTEM_ORANGE', None)),
+        ("وردي", getattr(ui, 'COLOR_SYSTEM_PINK', None)),
+        ("بنفسجي", getattr(ui, 'COLOR_SYSTEM_PURPLE', None)),
     ]
 
     button_container = ui.View()
@@ -44,15 +57,18 @@ def show_interactive_canvas():
     btn_width = 55
     spacing = 8
     for i, (col_name, col_val) in enumerate(colors):
-        btn = ui.Button(title="")
-        btn.background_color = col_val
+        btn = ui.Button()
+        btn.title = ""
+        if col_val is not None:
+            btn.background_color = col_val
         btn.corner_radius = 12
         btn.size = (btn_width, 40)
         btn.frame = (i * (btn_width + spacing), 0, btn_width, 40)
         
         def make_handler(c_val, name):
             def handler(sender):
-                canvas_box.background_color = c_val
+                if c_val is not None:
+                    canvas_box.background_color = c_val
                 status_label.text = f"تم اختيار اللون: {name}"
                 try:
                     ui.HapticFeedback(ui.HapticFeedback.SELECTION).generate()
