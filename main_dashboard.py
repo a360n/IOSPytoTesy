@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-📱 لوحة التحكم الرئيسية لاختبارات Pyto على الآيفون (Master Test Suite Dashboard)
-تتضمن نظام تنظيف تلقائي للذاكرة (Memory & Sensor Garbage Collector) لمنع أي كراش عند التشغيل السريع.
+📱 Master Test Suite Dashboard (Pyto on iPhone 17 Pro Max)
+Interactive launcher equipped with automatic garbage collection and background cleanup.
 """
 
 import sys
@@ -10,68 +10,64 @@ import time
 import gc
 
 MENU_ITEMS = [
-    # 1. اختبارات العتاد والأداء
-    ("1", "فحص وتشخيص عتاد الجهاز وبيئة بايثون", "01_hardware_benchmark/device_info_diagnostics.py"),
-    ("2", "اختبار إجهاد وقوة المعالج وتعدد الأنوية (CPU Stress)", "01_hardware_benchmark/cpu_multi_thread_stress.py"),
-    ("3", "اختبار أقصى حد للذاكرة العشوائية (RAM Limits)", "01_hardware_benchmark/ram_limit_test.py"),
-    ("4", "اختبار سرعة قراءة وكتابة وحدة التخزين (Disk Speed)", "01_hardware_benchmark/disk_io_benchmark.py"),
+    # 1. Hardware & Limits Benchmark
+    ("1", "Device Diagnostics & Python Environment", "01_hardware_benchmark/device_info_diagnostics.py"),
+    ("2", "CPU & Multi-Threading Stress Test (GFLOPS)", "01_hardware_benchmark/cpu_multi_thread_stress.py"),
+    ("3", "RAM Allocation Limits & Stress Test", "01_hardware_benchmark/ram_limit_test.py"),
+    ("4", "Storage NVMe Read & Write Speed (MB/s)", "01_hardware_benchmark/disk_io_benchmark.py"),
 
-    # 2. حساسات وميزات iOS
-    ("5", "اختبار الجيروسكوب وزوايا الميل والتسارع (Motion)", "02_ios_sensors_hardware/motion_and_gyroscope.py"),
-    ("6", "اختبار الـ GPS الدقيق وعكس العناوين (Location)", "02_ios_sensors_hardware/gps_and_geocoding.py"),
-    ("7", "اختبار اهتزازات محرك اللمس والأصوات (Haptics & Sound)", "02_ios_sensors_hardware/haptics_and_sound.py"),
-    ("8", "اختبار النطق الصوتي العربي والإنجليزي (Speech TTS)", "02_ios_sensors_hardware/speech_tts_arabic.py"),
-    ("9", "اختبار الإشعارات المحلية التفاعلية (Notifications)", "02_ios_sensors_hardware/local_notifications.py"),
-    ("10", "اختبار مكتبة الصور والكاميرا (Photos & Camera)", "02_ios_sensors_hardware/camera_and_photos.py"),
+    # 2. iOS Hardware Sensors
+    ("5", "Motion, Gyroscope & Attitude Tracking", "02_ios_sensors_hardware/motion_and_gyroscope.py"),
+    ("6", "GPS Location, Speed & Reverse Geocoding", "02_ios_sensors_hardware/gps_and_geocoding.py"),
+    ("7", "Taptic Engine Haptic Feedback & Audio", "02_ios_sensors_hardware/haptics_and_sound.py"),
+    ("8", "Siri Speech Synthesis & TTS", "02_ios_sensors_hardware/speech_tts_arabic.py"),
+    ("9", "Local Interactive Push Notifications", "02_ios_sensors_hardware/local_notifications.py"),
+    ("10", "Photo Library & Camera Interface", "02_ios_sensors_hardware/camera_and_photos.py"),
 
-    # 3. واجهات المستخدم الرسومية
-    ("11", "عرض واجهة مستخدم iOS أصلية بالكامل (Pyto UIKit)", "03_native_ui/pyto_ui_showcase.py"),
-    ("12", "ميزان رقمي رسومي حي باستخدام الحساسات (Live Leveler)", "03_native_ui/live_sensor_ui.py"),
-    ("13", "لوحة الرسم والألوان التفاعلية (Interactive Canvas)", "03_native_ui/interactive_canvas_drawing.py"),
+    # 3. Native Graphical User Interfaces
+    ("11", "Native iOS UIKit Interface Showcase", "03_native_ui/pyto_ui_showcase.py"),
+    ("12", "Live Animated Inclinometer Leveler (60 FPS)", "03_native_ui/live_sensor_ui.py"),
+    ("13", "Interactive Touch & Color Palette Canvas", "03_native_ui/interactive_canvas_drawing.py"),
 
-    # 4. الذكاء الاصطناعي وعلوم البيانات
-    ("14", "اختبار معالجة الصور عبر OpenCV (Computer Vision)", "04_ai_machine_learning/cv2_face_and_vision.py"),
-    ("15", "تدريب نماذج تعلم الآلة On-Device (Scikit-Learn)", "04_ai_machine_learning/sklearn_ml_training.py"),
-    ("16", "الحوسبة العلمية المتقدمة و FFT (NumPy/SciPy)", "04_ai_machine_learning/numpy_scipy_math_engine.py"),
-    ("17", "توليد ورسم المخططات البيانية (Matplotlib Plots)", "04_ai_machine_learning/data_visualization_plot.py"),
+    # 4. AI & Data Science
+    ("14", "OpenCV Computer Vision & Image Pipeline", "04_ai_machine_learning/cv2_face_and_vision.py"),
+    ("15", "On-Device Scikit-Learn Model Training", "04_ai_machine_learning/sklearn_ml_training.py"),
+    ("16", "Scientific Computing & 1M-pt FFT (NumPy/SciPy)", "04_ai_machine_learning/numpy_scipy_math_engine.py"),
+    ("17", "High-DPI Data Visualization Plots (Matplotlib)", "04_ai_machine_learning/data_visualization_plot.py"),
 
-    # 5. خوادم الويب والشبكات
-    ("18", "تشغيل خادم ويب حي على الآيفون (Web Server)", "05_networking_servers/iphone_web_server.py"),
-    ("19", "قياس سرعة وزمن استجابة الشبكة (Latency & Ping)", "05_networking_servers/network_speed_and_ping.py"),
-    ("20", "جلب بيانات الطقس الحية عبر REST API (JSON Fetch)", "05_networking_servers/api_fetch_weather_sample.py"),
+    # 5. Local Web Servers & Networking
+    ("18", "iPhone Hosted Web Server & Control Center", "05_networking_servers/iphone_web_server.py"),
+    ("19", "Network Latency Ping & Download Throughput", "05_networking_servers/network_speed_and_ping.py"),
+    ("20", "Live REST API Fetch & JSON Parsing", "05_networking_servers/api_fetch_weather_sample.py"),
 
-    # 6. الويدجت والاختصارات
-    ("21", "معاينة ويدجت الشاشة الرئيسية (Home Widget)", "06_widgets_and_shortcuts/custom_home_widget.py"),
-    ("22", "اختبار التكامل مع اختصارات سيري (Shortcuts)", "06_widgets_and_shortcuts/shortcuts_integration.py"),
+    # 6. Widgets & Automations
+    ("21", "Custom Home & Lock Screen Widget", "06_widgets_and_shortcuts/custom_home_widget.py"),
+    ("22", "Apple Shortcuts & Siri Automation", "06_widgets_and_shortcuts/shortcuts_integration.py"),
 ]
 
 def clear_screen():
     print("\033[H\033[J", end="")
 
 def cleanup_environment():
-    """تنظيف فوري للذاكرة وإيقاف أي حساسات أو رسومات معلقة في الخلفية لمنع الكراش"""
-    # 1. إيقاف حساسات الحركة
+    """Flushes RAM and stops all active sensor streams to ensure stability across runs."""
     try:
         import motion
         motion.stop_updating()
     except Exception:
         pass
 
-    # 2. إيقاف الـ GPS
     try:
         import location
         location.stop_updating()
     except Exception:
         pass
 
-    # 3. إغلاق نوافذ Matplotlib البيانية
     try:
         import matplotlib.pyplot as plt
         plt.close('all')
     except Exception:
         pass
 
-    # 4. تحرير الذاكرة العشوائية وتفريغ الكائنات غير المستخدمة
     gc.collect()
 
 def run_script(script_rel_path):
@@ -79,14 +75,13 @@ def run_script(script_rel_path):
     script_full_path = os.path.join(base_dir, script_rel_path)
     
     if not os.path.exists(script_full_path):
-        print(f"❌ لم يتم العثور على الملف: {script_full_path}")
+        print(f"❌ File not found: {script_full_path}")
         return
 
-    # تنظيف مسبق قبل التشغيل
     cleanup_environment()
 
     print("\n" + "=" * 65)
-    print(f"🚀 جاري تشغيل: {script_rel_path}...")
+    print(f"🚀 Running: {script_rel_path}...")
     print("=" * 65 + "\n")
     
     try:
@@ -94,21 +89,20 @@ def run_script(script_rel_path):
             code = compile(f.read(), script_full_path, 'exec')
             exec(code, {"__name__": "__main__", "__file__": script_full_path})
     except KeyboardInterrupt:
-        print("\n⏹️ تم إيقاف التشغيل بواسطة المستخدم.")
+        print("\n⏹️ Execution interrupted by user.")
     except Exception as e:
-        print(f"\n⚠️ تنبيه أثناء تنفيذ السكربت: {e}")
+        print(f"\n⚠️ Note during execution: {e}")
     finally:
-        # تنظيف لاحق بعد انتهاء التشغيل
         cleanup_environment()
-        time.sleep(0.2)  # مهلة قصيرة لإعطاء نظام iOS فرصة لإغلاق الواجهات بسلاسة
+        time.sleep(0.2)
 
 def main():
     while True:
         clear_screen()
         print("=" * 65)
-        print("  📱 مركز اختبار قدرات وحدود Pyto على iPhone 17 Pro Max")
+        print("  📱 iPhone 17 Pro Max Pyto Test Suite & Hardware Limits")
         print("=" * 65)
-        print("  اختر رقم الاختبار الذي ترغب بتشغيله:")
+        print("  Select a test number to execute:")
         print("-" * 65)
         
         current_cat = ""
@@ -119,17 +113,17 @@ def main():
                 print(f"\n📁 [{current_cat}]")
             print(f"   [{num:>2}] {title}")
 
-        print("\n   [ 0] 🚪 خروج (Exit)")
+        print("\n   [ 0] 🚪 Exit")
         print("=" * 65)
 
         try:
-            choice = input("👉 أدخل رقم الخيار واضغط Enter: ").strip()
+            choice = input("👉 Enter option number and press Enter: ").strip()
         except (KeyboardInterrupt, EOFError):
-            print("\n👋 وداعاً!")
+            print("\n👋 Goodbye!")
             break
 
         if choice == "0" or choice.lower() == "exit" or choice.lower() == "q":
-            print("\n👋 وداعاً! نتمنى لك تجربة ممتعة مع بايثون على الآيفون.\n")
+            print("\n👋 Goodbye! Enjoy developing with Python on iOS.\n")
             cleanup_environment()
             break
 
@@ -142,11 +136,11 @@ def main():
         if selected:
             run_script(selected)
             try:
-                input("\n⏎ اضغط Enter للعودة إلى القائمة الرئيسية...")
+                input("\n⏎ Press Enter to return to main menu...")
             except (KeyboardInterrupt, EOFError):
                 pass
         else:
-            print("⚠️ خيار غير صحيح، الرجاء المحاولة مرة أخرى.")
+            print("⚠️ Invalid choice. Please try again.")
             time.sleep(1)
 
 if __name__ == "__main__":

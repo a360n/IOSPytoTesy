@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-🧭 ميزان رقمي رسومي حي باستخدام الحساسات (Live Animated Sensor UI)
-يقوم هذا السكربت بدمج واجهات UIKit مع حساسات الجيروسكوب والتسارع (Motion)،
-ليصنع ميزاناً مائياً رقمياً تفاعلياً (Bubble Level) تتحرك فيه الفقاعة على الشاشة وفق ميل الهاتف.
+🧭 Live Inclinometer & Sensor Leveler UI
+Combines UIKit with CoreMotion gyroscope/accelerometer hardware sensors
+to create a 60 FPS animated digital bubble level that responds to iPhone tilts.
 """
 
 import math
@@ -14,7 +14,7 @@ def run_live_sensor_ui():
         import pyto_ui as ui
         import motion
     except ImportError:
-        print("❌ يتطلب هذا الاختبار تشغيله داخل تطبيق Pyto على جهاز iOS.")
+        print("❌ This test requires the Pyto app on iOS.")
         return
 
     def get_system_color(name, legacy_name=None):
@@ -30,11 +30,11 @@ def run_live_sensor_ui():
     bg_col = get_system_color('SYSTEM_BACKGROUND', 'COLOR_SYSTEM_BACKGROUND')
     if bg_col is not None:
         view.background_color = bg_col
-    view.title = "🧭 ميزان الميل الرقمي التفاعلي"
+    view.title = "🧭 Live Inclinometer Leveler"
 
-    # عنوان الشاشة
+    # Title
     title_label = ui.Label()
-    title_label.text = "حرك هاتفك لمشاهدة تفاعل الفقاعة"
+    title_label.text = "Tilt your iPhone to move the bubble"
     try:
         title_label.font = ui.Font.bold_system_font_of_size(18)
         if hasattr(ui, 'TextAlignment'):
@@ -46,7 +46,7 @@ def run_live_sensor_ui():
     title_label.size = (320, 30)
     title_label.center = (view.width / 2, 40)
 
-    # ملصق الزوايا
+    # Angle Label
     angle_label = ui.Label()
     angle_label.text = "Pitch: 0.0° | Roll: 0.0°"
     try:
@@ -63,7 +63,7 @@ def run_live_sensor_ui():
     angle_label.size = (320, 30)
     angle_label.center = (view.width / 2, 75)
 
-    # حلقة الميزان الخارجية (الهدف)
+    # Target Outer Ring
     target_circle = ui.View()
     target_circle.size = (220, 220)
     target_circle.corner_radius = 110
@@ -72,7 +72,7 @@ def run_live_sensor_ui():
         target_circle.background_color = gray5
     target_circle.center = (view.width / 2, 280)
 
-    # خطوط المحور (الهدف المتعامد في المركز)
+    # Crosshair Axis Lines
     gray3 = get_system_color('SYSTEM_GRAY3', 'COLOR_SYSTEM_GRAY3')
     h_line = ui.View()
     h_line.size = (200, 2)
@@ -88,7 +88,7 @@ def run_live_sensor_ui():
         v_line.background_color = gray3
     target_circle.add_subview(v_line)
 
-    # فقاعة الميزان المتحركة
+    # Moving Bubble
     bubble = ui.View()
     bubble.size = (54, 54)
     bubble.corner_radius = 27
@@ -103,7 +103,6 @@ def run_live_sensor_ui():
     view.add_subview(angle_label)
     view.add_subview(target_circle)
 
-    # متغير للتحكم بالحلقة عند إغلاق الشاشة
     is_running = True
 
     def stop_all_updates():
@@ -114,7 +113,6 @@ def run_live_sensor_ui():
         except Exception:
             pass
 
-    # تسجيل دوال الإغلاق عند خروج المستخدم من النافذة
     view.did_disappear = stop_all_updates
     view.will_disappear = stop_all_updates
 
@@ -127,7 +125,7 @@ def run_live_sensor_ui():
         center_x = target_circle.width / 2
         center_y = target_circle.height / 2
         max_offset = 80
-        max_duration = 300  # حد أمان أقصى 5 دقائق لمنع استنزاف البطارية في الخلفية
+        max_duration = 300
         start_t = time.time()
 
         while is_running and (time.time() - start_t < max_duration):
@@ -136,7 +134,6 @@ def run_live_sensor_ui():
                 gx = gravity[0]
                 gy = gravity[1]
 
-                # حساب إزاحة الفقاعة بناء على الجاذبية
                 offset_x = -gx * max_offset * 1.6
                 offset_y = gy * max_offset * 1.6
 
@@ -147,7 +144,6 @@ def run_live_sensor_ui():
 
                 bubble.center = (center_x + offset_x, center_y + offset_y)
 
-                # تغيير اللون للأخضر عند الوصول لنقطة الاتزان
                 if dist < 8:
                     if green_col is not None:
                         bubble.background_color = green_col
@@ -159,7 +155,7 @@ def run_live_sensor_ui():
                 roll = -gx * 90
                 angle_label.text = f"Pitch: {pitch:>4.1f}° | Roll: {roll:>4.1f}°"
 
-                time.sleep(0.04)  # ~25 FPS لتوفير الموارد ومنع الكراش
+                time.sleep(0.04)
             except Exception:
                 break
 

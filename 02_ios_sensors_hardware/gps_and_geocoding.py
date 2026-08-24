@@ -1,34 +1,34 @@
 #!/usr/bin/env python3
 """
-📍 اختبار الموقع الجغرافي والـ GPS وعكس الإحداثيات (GPS & Geocoding)
-يقوم هذا السكربت بالحصول على إحداثيات الـ GPS الدقيقة للآيفون (خط الطول، العرض، الارتفاع، السرعة)
-وتحويلها إلى عنوان بشري فعلي (اسم الشارع، المدينة، الدولة) عبر تقنية Reverse Geocoding.
+📍 GPS Location & Reverse Geocoding
+Queries the high-precision iPhone GPS receiver (latitude, longitude, altitude, accuracy, speed)
+and converts coordinates into physical addresses via Apple Maps Reverse Geocoding.
 """
 
 import time
 
 def test_gps_location():
     print("=" * 60)
-    print("  📍 اختبار الـ GPS والموقع الجغرافي (GPS & Geocoding)")
+    print("  📍 GPS Location & Reverse Geocoding")
     print("=" * 60)
 
     try:
         import location
     except ImportError:
-        print("❌ مكتبة 'location' غير متوفرة خارج تطبيق Pyto على نظام iOS.")
-        print("💡 لتجربة هذا الاختبار، قم بتشغيل السكربت من داخل تطبيق Pyto على الآيفون.")
+        print("❌ The 'location' module is only available in Pyto on iOS.")
+        print("💡 Run this script inside the Pyto app on your iPhone.")
         return
 
-    print("🛰️ جاري طلب إذن وتفعيل رقاقة الـ GPS عالية الدقة...")
+    print("🛰️ Requesting GPS authorization and activating receiver...")
     
     try:
         location.start_updating()
-        print("⏳ جاري استقبال إشارات الأقمار الصناعية (انتظر ثانيتين)...")
+        print("⏳ Acquiring satellite fix (waiting 2 seconds)...")
         time.sleep(2)
 
         loc = location.get_location()
         if not loc:
-            print("⚠️ لم يتم استلام إحداثيات بعد، جاري المحاولة مرة أخرى...")
+            print("⚠️ No fix yet, retrying...")
             time.sleep(2)
             loc = location.get_location()
 
@@ -42,45 +42,43 @@ def test_gps_location():
             course = loc.get("course", 0.0)
 
             print("\n" + "-" * 60)
-            print("🎯 بيانات الـ GPS المستلمة بنجاح:")
-            print(f"   • خط العرض (Latitude)    : {lat:.6f}°")
-            print(f"   • خط الطول (Longitude)   : {lon:.6f}°")
-            print(f"   • الارتفاع (Altitude)     : {altitude:.1f} متر فوق مستوى البحر")
-            print(f"   • دقة التحديد (Accuracy) : ±{h_acc:.1f} متر")
-            print(f"   • السرعة الحالية (Speed) : {max(0, speed) * 3.6:.1f} كم/ساعة")
-            print(f"   • الاتجاه (Heading)       : {course:.1f}°")
+            print("🎯 GPS Telemetry Received:")
+            print(f"   • Latitude    : {lat:.6f}°")
+            print(f"   • Longitude   : {lon:.6f}°")
+            print(f"   • Altitude    : {altitude:.1f} m above sea level")
+            print(f"   • Accuracy    : ±{h_acc:.1f} m")
+            print(f"   • Speed       : {max(0, speed) * 3.6:.1f} km/h")
+            print(f"   • Course      : {course:.1f}°")
             print("-" * 60)
 
-            # محاولة تحويل الإحداثيات إلى اسم المدينة والعنوان
-            print("\n🗺️ جاري الاتصال بخدمة Apple Maps للتعرف على العنوان (Reverse Geocoding)...")
+            print("\n🗺️ Querying Apple Maps Reverse Geocoding...")
             try:
                 places = location.reverse_geocode(loc)
                 if places and len(places) > 0:
                     place = places[0]
-                    print(f"   🏢 اسم المكان/الشارع: {place.get('name', 'غير محدد')}")
-                    print(f"   🏙️ المدينة / الحي   : {place.get('locality', place.get('subLocality', 'غير محدد'))}")
-                    print(f"   🏛️ المقاطعة / الولاية : {place.get('administrativeArea', 'غير محدد')}")
-                    print(f"   🌍 الدولة            : {place.get('country', 'غير محدد')} ({place.get('isoCountryCode', '')})")
+                    print(f"   🏢 Name / Street : {place.get('name', 'N/A')}")
+                    print(f"   🏙️ Locality      : {place.get('locality', place.get('subLocality', 'N/A'))}")
+                    print(f"   🏛️ State / Region: {place.get('administrativeArea', 'N/A')}")
+                    print(f"   🌍 Country       : {place.get('country', 'N/A')} ({place.get('isoCountryCode', '')})")
                 else:
-                    print("ℹ️ تم جلب الإحداثيات ولكن تعذر الحصول على تفاصيل العنوان النصي.")
+                    print("ℹ️ Coordinates acquired, but reverse geocoding returned no placemarks.")
             except Exception as ge:
-                print(f"ℹ️ تعذر تحويل العنوان: {ge}")
+                print(f"ℹ️ Geocoding note: {ge}")
 
-            # رابط مباشر لخريطة آبل
             maps_url = f"https://maps.apple.com/?q={lat},{lon}"
-            print(f"\n🔗 رابط خريطة آبل المباشر: {maps_url}")
+            print(f"\n🔗 Apple Maps URL: {maps_url}")
 
         else:
-            print("❌ تعذر التقاط الموقع. تأكد من تفعيل خدمات الموقع (Location Services) لتطبيق Pyto من إعدادات الآيفون.")
+            print("❌ Unable to acquire GPS fix. Ensure Location Services permission is granted to Pyto in iOS Settings.")
 
     except Exception as e:
-        print(f"❌ حدث خطأ أثناء فحص الـ GPS: {e}")
+        print(f"❌ Error during GPS lookup: {e}")
     finally:
         try:
             location.stop_updating()
         except Exception:
             pass
-        print("\n✅ تم إيقاف خدمة الـ GPS بنجاح.")
+        print("\n✅ GPS service stopped cleanly.")
 
 if __name__ == "__main__":
     test_gps_location()

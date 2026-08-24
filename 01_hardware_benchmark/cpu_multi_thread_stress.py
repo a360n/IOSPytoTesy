@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-⚡ اختبار إجهاد المعالج وتعدد الأنوية (CPU & Multi-Threading Stress Test)
-يقوم هذا السكربت باختبار القوة الحسابية الخارقة لمعالج الآيفون (A-Series Pro / Neural Engine)
-من خلال عمليات رياضية مكثفة، ضرب مصفوفات، واختبار تعدد الخيوط (Multi-Threading).
+⚡ CPU & Multi-Threading Stress Benchmark
+Tests single-core and multi-core computational performance of the Apple Silicon chip
+via intensive integer factorization, Monte Carlo simulations, NumPy matrix multiplications, and thread pools.
 """
 
 import time
@@ -17,7 +17,7 @@ def print_header(title):
     print("=" * 60)
 
 def cpu_heavy_primes(n=150000):
-    """حساب الأعداد الأولية لاختبار الحساب النقطي الأحادي"""
+    """Calculates prime numbers to test single-core floating/integer arithmetic"""
     primes = []
     for num in range(2, n):
         is_prime = True
@@ -30,7 +30,7 @@ def cpu_heavy_primes(n=150000):
     return len(primes)
 
 def cpu_heavy_monte_carlo_pi(samples=2000000):
-    """حساب قيمة باي عبر محاكاة مونت كارلو"""
+    """Calculates approximate Pi using 2M Monte Carlo random points"""
     import random
     inside = 0
     for _ in range(samples):
@@ -41,35 +41,35 @@ def cpu_heavy_monte_carlo_pi(samples=2000000):
     return (4.0 * inside) / samples
 
 def test_single_core():
-    print_header("1. اختبار النواة الواحدة (Single-Core Stress Test)")
+    print_header("1. Single-Core Stress Test")
     
-    # 1. اختبار الأعداد الأولية
-    print("⏳ جاري حساب الأعداد الأولية حتى 150,000...")
+    # 1. Prime computation
+    print("⏳ Calculating prime numbers up to 150,000...")
     t0 = time.time()
     count = cpu_heavy_primes(150000)
     t1 = time.time()
     dt_primes = t1 - t0
-    print(f"   ✅ تم العثور على {count:,} عدد أولي خلال {dt_primes:.3f} ثانية.")
+    print(f"   ✅ Found {count:,} primes in {dt_primes:.3f} seconds.")
 
-    # 2. اختبار مونت كارلو
-    print("⏳ جاري محاكاة مونت كارلو (2 مليون نقطة)...")
+    # 2. Monte Carlo
+    print("⏳ Running Monte Carlo simulation (2,000,000 points)...")
     t0 = time.time()
     pi_val = cpu_heavy_monte_carlo_pi(2000000)
     t1 = time.time()
     dt_mc = t1 - t0
-    print(f"   ✅ قيمة Pi التقريبية: {pi_val:.6f} خلال {dt_mc:.3f} ثانية.")
+    print(f"   ✅ Pi approximation: {pi_val:.6f} in {dt_mc:.3f} seconds.")
 
     score = int(10000 / (dt_primes + dt_mc))
-    print(f"🏆 نتيجة النواة الواحدة (Single-Core Score): {score:,} نقطة")
+    print(f"🏆 Single-Core Score: {score:,} points")
     return score
 
 def test_matrix_multiplication():
-    print_header("2. اختبار ضرب المصفوفات الحسابية (Matrix Multiplication)")
+    print_header("2. Matrix Multiplication Benchmark (GFLOPS)")
     try:
         import numpy as np
-        print("⚡ باستخدام مكتبة NumPy مع تسريع المعمارية...")
+        print("⚡ Using NumPy with hardware SIMD acceleration...")
         size = 1500
-        print(f"⏳ توليد مصفوفتين عشوائيتين بحجم {size}x{size}...")
+        print(f"⏳ Generating two random matrices of size {size}x{size}...")
         A = np.random.rand(size, size).astype(np.float64)
         B = np.random.rand(size, size).astype(np.float64)
 
@@ -79,13 +79,13 @@ def test_matrix_multiplication():
         
         # 2 * N^3 operations
         gflops = (2.0 * (size ** 3)) / (dt * 1e9)
-        print(f"   ✅ اكتمل ضرب مصفوفة {size}x{size} خلال {dt:.3f} ثانية!")
-        print(f"   🚀 الأداء: {gflops:.2f} GFLOPS")
+        print(f"   ✅ Computed {size}x{size} dot product in {dt:.3f} seconds!")
+        print(f"   🚀 Compute Throughput: {gflops:.2f} GFLOPS")
     except ImportError:
-        print("⚠️ مكتبة NumPy غير متوفرة، سيتم تجاوز اختبار المصفوفات الضخمة.")
+        print("⚠️ NumPy not installed. Skipping matrix benchmark.")
 
 def worker_task(thread_id, iterations=80000):
-    """مهمة فرعية تعمل في خيط مستقل"""
+    """Sub-task executing in a worker thread"""
     primes = 0
     for num in range(2, iterations):
         for i in range(2, int(math.isqrt(num)) + 1):
@@ -96,10 +96,10 @@ def worker_task(thread_id, iterations=80000):
     return primes
 
 def test_multi_threading():
-    print_header("3. اختبار تعدد الخيوط والأنوية (Multi-Threading Stress Test)")
+    print_header("3. Multi-Threading & Multi-Core Stress Test")
     num_cores = os.cpu_count() or 4
     num_threads = num_cores * 2
-    print(f"⚙️ الأنوية المكتشفة: {num_cores} | تشغيل {num_threads} خيوط معالجة متوازية...")
+    print(f"⚙️ Detected Cores: {num_cores} | Spawning {num_threads} concurrent worker threads...")
 
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=num_threads) as executor:
@@ -107,14 +107,14 @@ def test_multi_threading():
         results = [f.result() for f in futures]
     dt_multi = time.time() - t0
 
-    print(f"   ✅ اكتملت جميع المهام المتوازية ({sum(results):,} عملية) خلال {dt_multi:.3f} ثانية.")
+    print(f"   ✅ Completed all parallel tasks ({sum(results):,} operations) in {dt_multi:.3f} seconds.")
     multi_score = int((num_threads * 10000) / dt_multi)
-    print(f"🏆 نتيجة تعدد الأنوية (Multi-Core Score): {multi_score:,} نقطة")
+    print(f"🏆 Multi-Core Score: {multi_score:,} points")
     return multi_score
 
 if __name__ == "__main__":
     print("\n" + "#" * 60)
-    print("   📱 اختبار سرعة وقوة معالج الآيفون عبر Pyto")
+    print("   📱 Apple Silicon iPhone CPU Benchmark via Pyto")
     print("#" * 60)
 
     s_score = test_single_core()
@@ -122,5 +122,5 @@ if __name__ == "__main__":
     m_score = test_multi_threading()
 
     print("\n" + "=" * 60)
-    print(f"🏁 النتيجة الإجمالية المجمعة للأداء: {s_score + m_score:,} نقطة")
+    print(f"🏁 Total Combined Performance Score: {s_score + m_score:,} points")
     print("=" * 60 + "\n")

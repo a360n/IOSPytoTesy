@@ -1,53 +1,51 @@
 #!/usr/bin/env python3
 """
-🗣️ اختبار تحويل النص إلى كلام باللغة العربية والإنجليزية (Speech Synthesis TTS)
-يقوم هذا السكربت بتجربة محرك النطق الصوتي الخاص بشركة آبل ومساعد سيري (Siri Voice Engine)
-لنطق نصوص باللغة العربية الفصحى والإنجليزية مع التحكم بالسرعة ونبرة الصوت.
+🗣️ Text-to-Speech (TTS) Speech Synthesis
+Tests Apple Neural Siri voice synthesis in English and international languages
+with adjustable pitch, rate, and volume.
 """
 
 import time
 
 def test_speech_synthesis():
     print("=" * 60)
-    print("  🗣️ اختبار النطق الصوتي باللغة العربية (Apple TTS)")
+    print("  🗣️ Siri Speech Synthesis (TTS Engine)")
     print("=" * 60)
 
     try:
         import speech
     except ImportError:
-        print("❌ مكتبة 'speech' غير متوفرة خارج تطبيق Pyto على الآيفون.")
-        print("💡 لتجربة الصوت الحقيقي، شغل هذا السكربت من داخل Pyto على جهازك.")
+        print("❌ The 'speech' module is only available in Pyto on iOS.")
+        print("💡 Run this script inside the Pyto app on your iPhone.")
         return
 
-    arabic_text = "أهلاً بك يا علي! تم تشغيل بايثون بنجاح على هاتفك آيفون 17 برو ماكس الخارق."
-    english_text = "Python is running at full speed on Apple Silicon with Pyto!"
+    english_text = "Python is running at full native speed on Apple Silicon with Pyto!"
+    multilingual_text = "Welcome to the ultimate Python testing suite on iPhone 17 Pro Max."
 
-    print("\n1️⃣ تجربة النطق باللغة العربية (Arabic Voice - Saudi/Standard):")
-    print(f"   💬 النص: \"{arabic_text}\"")
+    print("\n1️⃣ Testing English Speech Synthesis (en-US):")
+    print(f"   💬 Text: \"{english_text}\"")
     try:
-        # فحص اللغات المتاحة إن أمكن
         if hasattr(speech, 'get_siri_voices'):
             voices = speech.get_siri_voices()
-            print(f"   🎙️ عدد أصوات سيري المتوفرة: {len(voices)}")
+            print(f"   🎙️ Available Siri voices count: {len(voices)}")
 
-        # النطق بالعربية
-        speech.say(arabic_text, "ar-SA")
-        print("   🔊 جاري التحدث...")
-        time.sleep(5)
-    except Exception as e:
-        print(f"   ⚠️ خطأ في نطق النص العربي: {e}")
-
-    print("\n2️⃣ تجربة النطق باللغة الإنجليزية (English US Voice):")
-    print(f"   💬 النص: \"{english_text}\"")
-    try:
         speech.say(english_text, "en-US")
-        print("   🔊 جاري التحدث...")
+        print("   🔊 Speaking...")
         time.sleep(4)
     except Exception as e:
-        print(f"   ⚠️ خطأ في نطق النص الإنجليزي: {e}")
+        print(f"   ⚠️ Error speaking English text: {e}")
+
+    print("\n2️⃣ Testing Multilingual System Speech:")
+    print(f"   💬 Text: \"{multilingual_text}\"")
+    try:
+        speech.say(multilingual_text, "en-GB")
+        print("   🔊 Speaking...")
+        time.sleep(4)
+    except Exception as e:
+        print(f"   ⚠️ Error speaking text: {e}")
 
     print("\n" + "=" * 60)
-    print("✨ اكتمل اختبار النطق الصوتي بنجاح!")
+    print("✨ Speech synthesis test completed successfully!")
     print("=" * 60 + "\n")
 
 if __name__ == "__main__":

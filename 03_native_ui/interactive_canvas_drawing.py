@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-🖌️ لوحة تفاعلية واستعراض المؤثرات (Interactive UI & Canvas)
-يقوم هذا السكربت بتجربة واجهة تفاعلية لتغيير الألوان، معاينة المؤثرات، وحساب الأبعاد الحقيقية لشاشة الآيفون.
+🖌️ Interactive Palette & Touch Canvas
+Tests dynamic color changing, haptic interactions, and layout sizing in UIKit.
 """
 
 def show_interactive_canvas():
     try:
         import pyto_ui as ui
     except ImportError:
-        print("❌ يتطلب تشغيل هذا السكربت داخل تطبيق Pyto على جهاز iOS.")
+        print("❌ This test requires the Pyto app on iOS.")
         return
 
     def get_system_color(name, legacy_name=None):
@@ -24,10 +24,10 @@ def show_interactive_canvas():
     bg_col = get_system_color('SYSTEM_BACKGROUND', 'COLOR_SYSTEM_BACKGROUND')
     if bg_col is not None:
         view.background_color = bg_col
-    view.title = "🖌️ اللوحة التفاعلية"
+    view.title = "🖌️ Interactive Palette"
 
     status_label = ui.Label()
-    status_label.text = "المس الأزرار لتغيير ألوان اللوحة"
+    status_label.text = "Tap buttons to change canvas color"
     try:
         title_font = ui.Font.bold_system_font_of_size(16)
         status_label.font = title_font
@@ -40,7 +40,7 @@ def show_interactive_canvas():
     status_label.size = (320, 30)
     status_label.center = (view.width / 2, 40)
 
-    # صندوق المعاينة الرئيسي
+    # Preview Canvas Box
     canvas_box = ui.View()
     canvas_box.size = (280, 220)
     canvas_box.center = (view.width / 2, 180)
@@ -49,13 +49,13 @@ def show_interactive_canvas():
     if indigo_col is not None:
         canvas_box.background_color = indigo_col
 
-    # أزرار اختيار الألوان
+    # Color Options
     colors = [
-        ("أزرق", get_system_color('SYSTEM_BLUE', 'COLOR_SYSTEM_BLUE')),
-        ("أخضر", get_system_color('SYSTEM_GREEN', 'COLOR_SYSTEM_GREEN')),
-        ("برتقالي", get_system_color('SYSTEM_ORANGE', 'COLOR_SYSTEM_ORANGE')),
-        ("وردي", get_system_color('SYSTEM_PINK', 'COLOR_SYSTEM_PINK')),
-        ("بنفسجي", get_system_color('SYSTEM_PURPLE', 'COLOR_SYSTEM_PURPLE')),
+        ("Blue", get_system_color('SYSTEM_BLUE', 'COLOR_SYSTEM_BLUE')),
+        ("Green", get_system_color('SYSTEM_GREEN', 'COLOR_SYSTEM_GREEN')),
+        ("Orange", get_system_color('SYSTEM_ORANGE', 'COLOR_SYSTEM_ORANGE')),
+        ("Pink", get_system_color('SYSTEM_PINK', 'COLOR_SYSTEM_PINK')),
+        ("Purple", get_system_color('SYSTEM_PURPLE', 'COLOR_SYSTEM_PURPLE')),
     ]
 
     button_container = ui.View()
@@ -77,7 +77,7 @@ def show_interactive_canvas():
             def handler(sender):
                 if c_val is not None:
                     canvas_box.background_color = c_val
-                status_label.text = f"تم اختيار اللون: {name}"
+                status_label.text = f"Selected Color: {name}"
                 try:
                     ui.HapticFeedback(ui.HapticFeedback.SELECTION).generate()
                 except Exception:

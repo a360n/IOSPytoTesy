@@ -1,65 +1,62 @@
 #!/usr/bin/env python3
 """
-📳 اختبار محرك الاهتزاز والصوت (Taptic Engine Haptics & Sound)
-يقوم هذا السكربت بتجربة أنماط الاهتزاز اللمسية التفاعلية لمحرك Taptic Engine في الآيفون
-(خفيف، متوسط، قوي، نجاح، تحذير، خطأ)، بالإضافة لتشغيل أصوات ونغمات النظام.
+📳 Taptic Engine Haptics & Audio Feedback
+Tests tactile feedback vibration patterns (Light, Medium, Heavy, Success, Warning, Error, Selection)
+and system audio tones.
 """
 
 import time
 
 def test_haptics_and_sound():
     print("=" * 60)
-    print("  📳 اختبار محرك اللمس والأصوات (Haptic Feedback & Sound)")
+    print("  📳 Taptic Engine Haptic Feedback & Audio")
     print("=" * 60)
 
-    # 1. اختبار الاهتزازات التفاعلية (Haptics)
-    print("\n1️⃣ تجربة اهتزازات محرك Taptic Engine:")
+    # 1. Haptic Feedback
+    print("\n1️⃣ Testing Taptic Engine feedback vibrations:")
     try:
         import pyto_ui as ui
         
         haptics_types = [
-            ("اهتزاز خفيف (Light Impact)", ui.HapticFeedback.IMPACT_LIGHT if hasattr(ui, 'HapticFeedback') else None),
-            ("اهتزاز متوسط (Medium Impact)", ui.HapticFeedback.IMPACT_MEDIUM if hasattr(ui, 'HapticFeedback') else None),
-            ("اهتزاز قوي (Heavy Impact)", ui.HapticFeedback.IMPACT_HEAVY if hasattr(ui, 'HapticFeedback') else None),
-            ("إشعار نجاح (Notification Success)", ui.HapticFeedback.NOTIFICATION_SUCCESS if hasattr(ui, 'HapticFeedback') else None),
-            ("إشعار تحذير (Notification Warning)", ui.HapticFeedback.NOTIFICATION_WARNING if hasattr(ui, 'HapticFeedback') else None),
-            ("إشعار خطأ (Notification Error)", ui.HapticFeedback.NOTIFICATION_ERROR if hasattr(ui, 'HapticFeedback') else None),
-            ("تغيير اختيار (Selection Changed)", ui.HapticFeedback.SELECTION if hasattr(ui, 'HapticFeedback') else None),
+            ("Light Impact", getattr(ui.HapticFeedback, 'IMPACT_LIGHT', None) if hasattr(ui, 'HapticFeedback') else None),
+            ("Medium Impact", getattr(ui.HapticFeedback, 'IMPACT_MEDIUM', None) if hasattr(ui, 'HapticFeedback') else None),
+            ("Heavy Impact", getattr(ui.HapticFeedback, 'IMPACT_HEAVY', None) if hasattr(ui, 'HapticFeedback') else None),
+            ("Success Notification", getattr(ui.HapticFeedback, 'NOTIFICATION_SUCCESS', None) if hasattr(ui, 'HapticFeedback') else None),
+            ("Warning Notification", getattr(ui.HapticFeedback, 'NOTIFICATION_WARNING', None) if hasattr(ui, 'HapticFeedback') else None),
+            ("Error Notification", getattr(ui.HapticFeedback, 'NOTIFICATION_ERROR', None) if hasattr(ui, 'HapticFeedback') else None),
+            ("Selection Changed", getattr(ui.HapticFeedback, 'SELECTION', None) if hasattr(ui, 'HapticFeedback') else None),
         ]
 
         for name, feedback in haptics_types:
-            print(f"   👉 تشغيل {name}...")
+            print(f"   👉 Generating {name}...")
             try:
                 if feedback is not None:
                     ui.HapticFeedback(feedback).generate()
                 else:
-                    # محاولة عبر مكتبة sound إن وجدت
                     import sound
                     sound.beep()
             except Exception:
                 pass
-            time.sleep(1.0)
+            time.sleep(0.8)
             
-        print("   ✅ تم إرسال جميع أنماط الاهتزاز بنجاح!")
+        print("   ✅ All haptic vibrations triggered successfully!")
         
     except ImportError:
-        print("   ⚠️ مكتبة pyto_ui غير متوفرة في بيئة الاختبار الحالية.")
+        print("   ⚠️ pyto_ui module not available in current environment.")
 
-    # 2. اختبار الأصوات (Sound Effects)
-    print("\n2️⃣ تجربة أصوات النظام والصوتيات:")
+    # 2. Sound Effects
+    print("\n2️⃣ Testing system sound alerts:")
     try:
         import sound
-        print("   🔔 تشغيل صوت التنبيه Beep...")
+        print("   🔔 Playing system beep tone...")
         sound.beep()
         time.sleep(1)
-        
-        # نغمات أو مؤثرات إن كانت مدعومة
-        print("   ✅ تم تشغيل المؤثر الصوتي بنجاح.")
+        print("   ✅ Sound played successfully.")
     except ImportError:
-        print("   ℹ️ مكتبة sound مخصصة لبيئة iOS و Pyto.")
+        print("   ℹ️ sound module is designed for iOS Pyto.")
 
     print("\n" + "=" * 60)
-    print("✨ اكتمل اختبار الاهتزاز والصوتيات بنجاح!")
+    print("✨ Haptics and audio test completed!")
     print("=" * 60 + "\n")
 
 if __name__ == "__main__":

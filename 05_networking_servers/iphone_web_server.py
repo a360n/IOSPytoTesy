@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-🌐 تشغيل خادم ويب تفاعلي على الآيفون (iPhone Web Server & Remote Control)
-يقوم هذا السكربت بتحويل جهاز الآيفون إلى سيرفر ويب مصغر (HTTP Server) متصل بشبكة الـ Wi-Fi المحلية!
-يمكنك فتح المتصفح من جهاز الماك أو الكمبيوتر على نفس الشبكة والدخول لصفحة تحكم الآيفون.
+🌐 iPhone Hosted Web Server & Remote Control Dashboard
+Turns your iPhone into a local HTTP web server accessible from any Mac, PC, or phone on the same Wi-Fi network!
 """
 
 import http.server
@@ -14,10 +13,9 @@ import os
 import sys
 
 def get_local_ip():
-    """الحصول على عنوان IP المحلي للآيفون على شبكة الواي فاي"""
+    """Retrieves local Wi-Fi IP address of the iPhone"""
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        # لا يتم إرسال بيانات فعلية
         s.connect(('10.255.255.255', 1))
         ip = s.getsockname()[0]
     except Exception:
@@ -27,7 +25,7 @@ def get_local_ip():
     return ip
 
 HTML_PAGE = """<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,36 +43,35 @@ HTML_PAGE = """<!DOCTYPE html>
         .stat-item { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; }
         .stat-label { font-size: 12px; color: #9ca3af; }
         .stat-value { font-size: 16px; font-weight: bold; color: #34d399; margin-top: 4px; }
-        .terminal { background: #000; border-radius: 10px; padding: 15px; font-family: monospace; font-size: 14px; color: #10b981; border: 1px solid #1f2937; height: 120px; overflow-y: auto; margin-top: 10px; }
-        .btn { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn { background: #3b82f6; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         .btn:hover { background: #2563eb; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <span class="badge">📡 خادم بايثون نشط على الآيفون</span>
-            <h1>لوحة تحكم iPhone 17 Pro Max</h1>
-            <p style="color: #94a3b8; font-size: 14px;">تم تشغيل هذا الموقع مباشرة من جهاز الآيفون الخاص بك عبر Pyto!</p>
+            <span class="badge">📡 Live Python Server on iPhone</span>
+            <h1>iPhone 17 Pro Max Control Center</h1>
+            <p style="color: #94a3b8; font-size: 14px;">This website is hosted and served directly from your iPhone via Pyto!</p>
         </div>
 
         <div class="card">
-            <h2>📱 معلومات الجهاز والبيئة</h2>
+            <h2>📱 Device & Environment Telemetry</h2>
             <div class="stat-grid">
-                <div class="stat-item"><div class="stat-label">النظام</div><div class="stat-value">__SYSTEM__</div></div>
-                <div class="stat-item"><div class="stat-label">أنوية المعالج</div><div class="stat-value">__CORES__ Cores</div></div>
-                <div class="stat-item"><div class="stat-label">إصدار بايثون</div><div class="stat-value">__PY_VER__</div></div>
-                <div class="stat-item"><div class="stat-label">المعمارية</div><div class="stat-value">__ARCH__</div></div>
+                <div class="stat-item"><div class="stat-label">Operating System</div><div class="stat-value">__SYSTEM__</div></div>
+                <div class="stat-item"><div class="stat-label">CPU Cores</div><div class="stat-value">__CORES__ Cores</div></div>
+                <div class="stat-item"><div class="stat-label">Python Version</div><div class="stat-value">__PY_VER__</div></div>
+                <div class="stat-item"><div class="stat-label">Architecture</div><div class="stat-value">__ARCH__</div></div>
             </div>
         </div>
 
         <div class="card">
-            <h2>⚡ حالة الاتصال المباشر</h2>
+            <h2>⚡ Connection Status</h2>
             <div class="stat-grid">
-                <div class="stat-item"><div class="stat-label">عنوان الآي بي المحلي</div><div class="stat-value">__IP__</div></div>
-                <div class="stat-item"><div class="stat-label">المنفذ (Port)</div><div class="stat-value">8080</div></div>
+                <div class="stat-item"><div class="stat-label">Local IP Address</div><div class="stat-value">__IP__</div></div>
+                <div class="stat-item"><div class="stat-label">Port</div><div class="stat-value">8080</div></div>
             </div>
-            <button class="btn" onclick="alert('اتصالك بالآيفون يعمل بسرعة البرق!')">🔔 إرسال اختبار استجابة Ping</button>
+            <button class="btn" onclick="alert('Connection to your iPhone is active and lightning fast!')">🔔 Send Ping Request</button>
         </div>
     </div>
 </body>
@@ -112,24 +109,24 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
 def start_server(port=8080):
     ip = get_local_ip()
     print("=" * 60)
-    print(f"  🌐 خادم ويب محلي يعمل على الآيفون (iPhone Web Server)")
+    print(f"  🌐 iPhone Embedded Web Server")
     print("=" * 60)
-    print(f"🚀 السيرفر يعمل الآن على المنفذ {port}")
-    print(f"\n📲 للدخول من نفس جهاز الآيفون:")
+    print(f"🚀 Server is now listening on port {port}")
+    print(f"\n📲 From this iPhone:")
     print(f"   👉 http://localhost:{port}")
-    print(f"\n💻 للدخول من جهاز الماك أو الكمبيوتر أو أي هاتف على نفس الواي فاي:")
+    print(f"\n💻 From Mac, PC, or another device on the same Wi-Fi:")
     print(f"   👉 http://{ip}:{port}")
-    print(f"\n📡 للاستعلام عبر الـ API:")
+    print(f"\n📡 JSON API Status Endpoint:")
     print(f"   👉 http://{ip}:{port}/api/status")
     print("-" * 60)
-    print("⏳ اضغط (Stop / Ctrl+C) لإيقاف السيرفر.\n")
+    print("⏳ Press stop or Ctrl+C to terminate server.\n")
 
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", port), CustomHandler) as httpd:
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
-            print("\n⏹️ تم إيقاف السيرفر بنجاح.")
+            print("\n⏹️ Server stopped successfully.")
 
 if __name__ == "__main__":
     start_server()
