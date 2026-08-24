@@ -17,11 +17,19 @@ def run_live_sensor_ui():
         print("❌ يتطلب هذا الاختبار تشغيله داخل تطبيق Pyto على جهاز iOS.")
         return
 
+    def get_system_color(name, legacy_name=None):
+        if hasattr(ui, 'SystemColors') and hasattr(ui.SystemColors, name):
+            return getattr(ui.SystemColors, name)
+        if legacy_name and hasattr(ui, legacy_name):
+            return getattr(ui, legacy_name)
+        if hasattr(ui, f"COLOR_{name}"):
+            return getattr(ui, f"COLOR_{name}")
+        return None
+
     view = ui.View()
-    try:
-        view.background_color = ui.COLOR_SYSTEM_BACKGROUND
-    except Exception:
-        pass
+    bg_col = get_system_color('SYSTEM_BACKGROUND', 'COLOR_SYSTEM_BACKGROUND')
+    if bg_col is not None:
+        view.background_color = bg_col
     view.title = "🧭 ميزان الميل الرقمي التفاعلي"
 
     # عنوان الشاشة
@@ -29,7 +37,10 @@ def run_live_sensor_ui():
     title_label.text = "حرك هاتفك لمشاهدة تفاعل الفقاعة"
     try:
         title_label.font = ui.Font.bold_system_font_of_size(18)
-        title_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
+        if hasattr(ui, 'TextAlignment'):
+            title_label.text_alignment = ui.TextAlignment.CENTER
+        elif hasattr(ui, 'TEXT_ALIGNMENT_CENTER'):
+            title_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
     except Exception:
         pass
     title_label.size = (320, 30)
@@ -40,8 +51,13 @@ def run_live_sensor_ui():
     angle_label.text = "Pitch: 0.0° | Roll: 0.0°"
     try:
         angle_label.font = ui.Font.system_font_of_size(15)
-        angle_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
-        angle_label.text_color = ui.COLOR_SECONDARY_LABEL
+        sec_color = get_system_color('SECONDARY_LABEL', 'COLOR_SECONDARY_LABEL')
+        if sec_color is not None:
+            angle_label.text_color = sec_color
+        if hasattr(ui, 'TextAlignment'):
+            angle_label.text_alignment = ui.TextAlignment.CENTER
+        elif hasattr(ui, 'TEXT_ALIGNMENT_CENTER'):
+            angle_label.text_alignment = ui.TEXT_ALIGNMENT_CENTER
     except Exception:
         pass
     angle_label.size = (320, 30)
@@ -51,42 +67,35 @@ def run_live_sensor_ui():
     target_circle = ui.View()
     target_circle.size = (220, 220)
     target_circle.corner_radius = 110
-    try:
-        target_circle.background_color = ui.COLOR_SYSTEM_GRAY5
-    except Exception:
-        try:
-            target_circle.background_color = ui.Color(0.85, 0.85, 0.9, 0.5)
-        except Exception:
-            pass
+    gray5 = get_system_color('SYSTEM_GRAY5', 'COLOR_SYSTEM_GRAY5')
+    if gray5 is not None:
+        target_circle.background_color = gray5
     target_circle.center = (view.width / 2, 280)
 
     # خطوط المحور (الهدف المتعامد في المركز)
+    gray3 = get_system_color('SYSTEM_GRAY3', 'COLOR_SYSTEM_GRAY3')
     h_line = ui.View()
     h_line.size = (200, 2)
     h_line.center = (target_circle.width / 2, target_circle.height / 2)
-    try:
-        h_line.background_color = ui.COLOR_SYSTEM_GRAY3
-    except Exception:
-        pass
+    if gray3 is not None:
+        h_line.background_color = gray3
     target_circle.add_subview(h_line)
 
     v_line = ui.View()
     v_line.size = (2, 200)
     v_line.center = (target_circle.width / 2, target_circle.height / 2)
-    try:
-        v_line.background_color = ui.COLOR_SYSTEM_GRAY3
-    except Exception:
-        pass
+    if gray3 is not None:
+        v_line.background_color = gray3
     target_circle.add_subview(v_line)
 
     # فقاعة الميزان المتحركة
     bubble = ui.View()
     bubble.size = (54, 54)
     bubble.corner_radius = 27
-    try:
-        bubble.background_color = ui.COLOR_SYSTEM_BLUE
-    except Exception:
-        pass
+    blue_col = get_system_color('SYSTEM_BLUE', 'COLOR_SYSTEM_BLUE')
+    green_col = get_system_color('SYSTEM_GREEN', 'COLOR_SYSTEM_GREEN')
+    if blue_col is not None:
+        bubble.background_color = blue_col
     bubble.center = (target_circle.width / 2, target_circle.height / 2)
     target_circle.add_subview(bubble)
 
@@ -94,7 +103,6 @@ def run_live_sensor_ui():
     view.add_subview(angle_label)
     view.add_subview(target_circle)
 
-    # متغير للتحكم بالحلقة عند إغلاق الشاشة
     is_running = True
 
     def sensor_loop():
@@ -117,7 +125,6 @@ def run_live_sensor_ui():
                 offset_x = -gx * max_offset * 1.6
                 offset_y = gy * max_offset * 1.6
 
-                # تقييد المسافة داخل الدائرة
                 dist = math.hypot(offset_x, offset_y)
                 if dist > max_offset:
                     offset_x = (offset_x / dist) * max_offset
@@ -127,15 +134,11 @@ def run_live_sensor_ui():
 
                 # تغيير اللون للأخضر عند الوصول لنقطة الاتزان
                 if dist < 8:
-                    try:
-                        bubble.background_color = ui.COLOR_SYSTEM_GREEN
-                    except Exception:
-                        pass
+                    if green_col is not None:
+                        bubble.background_color = green_col
                 else:
-                    try:
-                        bubble.background_color = ui.COLOR_SYSTEM_BLUE
-                    except Exception:
-                        pass
+                    if blue_col is not None:
+                        bubble.background_color = blue_col
 
                 pitch = gy * 90
                 roll = -gx * 90
@@ -150,11 +153,14 @@ def run_live_sensor_ui():
         except Exception:
             pass
 
-    # تشغيل خيط قراءة الحساسات
     sensor_thread = threading.Thread(target=sensor_loop, daemon=True)
     sensor_thread.start()
 
-    ui.show_view(view, mode=ui.PRESENTATION_MODE_SHEET)
+    mode = getattr(ui.PresentationMode, 'SHEET', None) if hasattr(ui, 'PresentationMode') else getattr(ui, 'PRESENTATION_MODE_SHEET', 0)
+    if mode is not None:
+        ui.show_view(view, mode=mode)
+    else:
+        ui.show_view(view)
 
 if __name__ == "__main__":
     run_live_sensor_ui()
