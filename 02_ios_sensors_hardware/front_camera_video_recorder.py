@@ -153,26 +153,30 @@ def record_continuous_video():
                 import photo_library
                 if hasattr(photo_library, 'save_video'):
                     photo_library.save_video(output_filename)
-                    print("📸 Successfully saved a copy to iPhone Photos App (Camera Roll)!")
-            except Exception as pe:
+                    print("📸 Successfully saved to iPhone Photos App (Camera Roll)!")
+            except Exception:
                 try:
                     import photos
                     if hasattr(photos, 'save_video'):
                         photos.save_video(output_filename)
-                        print("📸 Successfully saved to iPhone Photos App!")
+                        print("📸 Successfully saved to iPhone Photos App (Camera Roll)!")
                 except Exception:
                     pass
 
-            # 2. Present iOS Share Sheet / Quick Look
+            # 2. Present iOS Share Sheet via modern Pyto file_system
             try:
-                import sharing
-                print("📤 Opening iOS Share Sheet to AirDrop, Preview, or Save...")
-                if hasattr(sharing, 'share'):
-                    sharing.share([output_filename])
-                elif hasattr(sharing, 'quick_look'):
-                    sharing.quick_look(output_filename)
-            except Exception as se:
-                print(f"ℹ️ Note: {se}")
+                import file_system
+                if hasattr(file_system, 'share'):
+                    file_system.share(output_filename)
+                elif hasattr(file_system, 'open'):
+                    file_system.open(output_filename)
+            except Exception:
+                try:
+                    import sharing
+                    if hasattr(sharing, 'share'):
+                        sharing.share([output_filename])
+                except Exception:
+                    pass
         else:
             print("⚠️ Video file not found.")
 
