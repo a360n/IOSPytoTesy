@@ -23,7 +23,7 @@ MENU_ITEMS = [
     ("8", "Siri Speech Synthesis & TTS", "02_ios_sensors_hardware/speech_tts_arabic.py"),
     ("9", "Local Interactive Push Notifications", "02_ios_sensors_hardware/local_notifications.py"),
     ("10", "Live Camera Viewfinder Photo Capture", "02_ios_sensors_hardware/launch_native_camera.py"),
-    ("11", "Front Camera Video Recording (MP4)", "02_ios_sensors_hardware/front_camera_video_recorder.py"),
+    ("11", "Continuous Video Recording (Rear/Front Cam)", "02_ios_sensors_hardware/front_camera_video_recorder.py"),
     ("12", "Long-Running Background Task Runner", "02_ios_sensors_hardware/background_task_runner.py"),
     ("13", "Photo Library & Media Album Interface", "02_ios_sensors_hardware/camera_and_photos.py"),
 

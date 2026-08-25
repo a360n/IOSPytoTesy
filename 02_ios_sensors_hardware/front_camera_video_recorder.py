@@ -1,113 +1,159 @@
 #!/usr/bin/env python3
 """
-📹 Front Camera Video Recorder & iOS Privacy Architecture
-Demonstrates video recording from the Front Facing camera, explains iOS background privacy limits,
-and captures video/frames into MP4 files.
+📹 Continuous Rear/Front Camera Video Recorder (Manual Stop)
+Records high-definition video from the iPhone Back Camera (or Front Camera) continuously.
+The recording will NOT stop until you tap the Stop button or press Enter!
+Safely finalizes and saves the MP4 video and opens the iOS Share Sheet.
 """
 
 import time
 import os
 import sys
+import datetime
+import threading
 
-def record_front_camera_video(duration_seconds=5, output_filename="front_camera_recording.mp4"):
+def record_continuous_video():
     print("=" * 60)
-    print("  📹 Front Camera Video Recording Engine")
+    print("  📹 Continuous iPhone Video Recorder (Manual Stop)")
     print("=" * 60)
 
-    print("\n🔒 [Important iOS Security & Privacy Note]:")
-    print("   • Apple iOS kernel strictly forbids any app from accessing the camera")
-    print("     silently in the background while another app is active or screen is locked.")
-    print("   • When an app transitions to the background, iOS automatically revokes")
-    print("     AVCaptureSession camera access (Hardware Privacy Indicator / Green Dot).")
-    print("   • Audio recording and GPS tracking CAN run in the background, but camera")
-    print("     video capture requires an active foreground session on iOS.\n")
-    print("-" * 60)
-
-    # 1. Background Task Registration in Pyto
-    try:
-        import background
-        print("⚡ Requesting iOS Background Task Execution token...")
-        background.start_background_task()
-        print("   ✅ Background task capability enabled in Pyto.")
-    except ImportError:
-        print("   ℹ️ 'background' module is specific to Pyto on iOS.")
-    except Exception as e:
-        print(f"   ℹ️ Background token: {e}")
-
-    # 2. Front Camera Capture via OpenCV
-    print(f"\n🎥 Initializing Front Camera (Device Index: 1) for {duration_seconds} seconds...")
     try:
         import cv2
         import numpy as np
+    except ImportError as e:
+        print(f"❌ OpenCV (cv2) is required: {e}")
+        return
 
-        # Index 1 = Front Camera on iOS / Mobile devices, 0 = Back Camera
-        cap = cv2.VideoCapture(1)
+    # 1. Select Camera Lens
+    print("Select camera lens to use:")
+    print("   [1] 📷 Back / Rear Camera (Default)")
+    print("   [2] 🤳 Front / Selfie Camera")
+    
+    lens_choice = "1"
+    # Provide quick default or user input
+    try:
+        user_in = input("👉 Enter choice (1/2, default: 1): ").strip()
+        if user_in in ["1", "2"]:
+            lens_choice = user_in
+    except Exception:
+        lens_choice = "1"
 
-        if not cap.isOpened():
-            print("⚠️ Front camera (Index 1) not opened, falling back to camera Index 0...")
-            cap = cv2.VideoCapture(0)
+    camera_index = 0 if lens_choice == "1" else 1
+    camera_name = "Back / Rear Camera" if camera_index == 0 else "Front / Selfie Camera"
 
-        if not cap.isOpened():
-            print("❌ Camera device could not be opened directly via cv2.VideoCapture.")
-            print("💡 Tip: Use 'launch_native_camera.py' or Pyto's photo_library for native UI capture.")
-            return
+    print(f"\n🚀 Initializing {camera_name} (Index: {camera_index})...")
+    cap = cv2.VideoCapture(camera_index)
 
-        # Fetch actual camera resolution
-        frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or 1280
-        frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or 720
-        fps = 30.0
+    if not cap.isOpened():
+        fallback_index = 1 if camera_index == 0 else 0
+        print(f"⚠️ Could not open Index {camera_index}, trying Index {fallback_index}...")
+        cap = cv2.VideoCapture(fallback_index)
 
-        print(f"   • Sensor Resolution : {frame_width} x {frame_height}")
-        print(f"   • Frame Rate        : {fps} FPS")
+    if not cap.isOpened():
+        print("❌ Unable to connect to iPhone camera stream.")
+        return
 
-        # Setup MP4 Video Writer (H.264 / mp4v codec)
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(output_filename, fourcc, fps, (frame_width, frame_height))
+    # Frame properties
+    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or 1280
+    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or 720
+    fps = 30.0
 
-        print(f"\n🔴 RECORDING IN PROGRESS ({duration_seconds} seconds)...")
-        start_time = time.time()
-        frames_recorded = 0
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    prefix = "back_cam" if camera_index == 0 else "front_cam"
+    output_filename = f"{prefix}_recording_{timestamp}.mp4"
 
-        while (time.time() - start_time) < duration_seconds:
+    # Setup Video Writer with MP4 codec
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter(output_filename, fourcc, fps, (frame_width, frame_height))
+
+    # Control flag
+    is_recording = True
+
+    def input_listener():
+        """Allows stopping via Enter / return in console"""
+        nonlocal is_recording
+        try:
+            input()
+            is_recording = False
+        except Exception:
+            pass
+
+    listener_thread = threading.Thread(target=input_listener, daemon=True)
+    listener_thread.start()
+
+    print("\n" + "=" * 60)
+    print(f"🔴 RECORDING STARTED ON {camera_name.upper()}!")
+    print(f"   • Resolution: {frame_width} x {frame_height} @ {fps:.0f} FPS")
+    print(f"   • Output    : {output_filename}")
+    print("=" * 60)
+    print("👉 To STOP recording: Press ENTER in console or tap the STOP button (⏹️) in Pyto.")
+    print("-" * 60 + "\n")
+
+    start_time = time.time()
+    frames_recorded = 0
+
+    try:
+        while is_recording:
             ret, frame = cap.read()
             if not ret or frame is None:
-                break
-            
-            # Write frame to video stream
+                # Brief retry to prevent random drop
+                time.sleep(0.01)
+                continue
+
             out.write(frame)
             frames_recorded += 1
             elapsed = time.time() - start_time
-            print(f"\r   ⏱️ Elapsed: {elapsed:>4.1f}s / {duration_seconds}s | Frames: {frames_recorded}", end="")
-            time.sleep(1.0 / fps)
+            
+            # Format time display MM:SS.d
+            mins = int(elapsed // 60)
+            secs = int(elapsed % 60)
+            tenths = int((elapsed * 10) % 10)
+            print(f"\r🔴 RECORDING: {mins:02d}:{secs:02d}.{tenths} | Frames: {frames_recorded:>5} | Press ENTER to Stop...", end="", flush=True)
 
-        print("\n\n⏹️ Recording completed successfully!")
-        cap.release()
-        out.release()
+            time.sleep(1.0 / (fps * 1.1))
 
-        if os.path.exists(output_filename) and os.path.getsize(output_filename) > 0:
-            file_size_kb = os.path.getsize(output_filename) / 1024.0
+    except (KeyboardInterrupt, SystemExit):
+        print("\n\n⏹️ Stop command received via Pyto interface!")
+    except Exception as e:
+        print(f"\n⚠️ Note during recording: {e}")
+    finally:
+        is_recording = False
+        print("\n⏳ Finalizing video encoding and writing MP4 headers...")
+        
+        # Cleanly release hardware and flush video buffers
+        try:
+            cap.release()
+        except Exception:
+            pass
+        try:
+            out.release()
+        except Exception:
+            pass
+
+        total_elapsed = time.time() - start_time
+        print("\n" + "=" * 60)
+        print("🎉 Video Recording Finalized Successfully!")
+        print("=" * 60)
+        print(f"   • Total Duration : {total_elapsed:.1f} seconds ({int(total_elapsed//60):02d}:{int(total_elapsed%60):02d})")
+        print(f"   • Total Frames   : {frames_recorded:,} frames")
+        
+        if os.path.exists(output_filename):
+            file_size_mb = os.path.getsize(output_filename) / (1024.0 * 1024.0)
+            print(f"   • File Size      : {file_size_mb:.2f} MB")
+            print(f"   • File Path      : {os.path.abspath(output_filename)}")
             print("-" * 60)
-            print("🎉 Video File Summary:")
-            print(f"   • File Name   : {output_filename}")
-            print(f"   • Total Frames: {frames_recorded}")
-            print(f"   • File Size   : {file_size_kb:.1f} KB")
-            print(f"   • Location    : {os.path.abspath(output_filename)}")
-            print("-" * 60)
 
-            # Share sheet preview
+            # Present iOS Share Sheet to save or share video
             try:
                 import sharing
-                print("📤 Opening iOS Share Sheet to preview or save to Camera Roll...")
+                print("📤 Opening iOS Share Sheet to preview, save to Camera Roll, or AirDrop...")
                 sharing.share_file(output_filename)
-            except Exception:
-                pass
+            except Exception as se:
+                print(f"ℹ️ Share sheet note: {se}")
         else:
-            print("⚠️ Video file was empty or not generated.")
+            print("⚠️ Video file not found.")
 
-    except ImportError:
-        print("❌ OpenCV (cv2) is required for frame-level video recording.")
-    except Exception as e:
-        print(f"❌ Error during video recording: {e}")
+        print("\n✨ Ready!\n")
 
 if __name__ == "__main__":
-    record_front_camera_video()
+    record_continuous_video()
