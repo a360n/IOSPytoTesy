@@ -23,28 +23,30 @@ MENU_ITEMS = [
     ("8", "Siri Speech Synthesis & TTS", "02_ios_sensors_hardware/speech_tts_arabic.py"),
     ("9", "Local Interactive Push Notifications", "02_ios_sensors_hardware/local_notifications.py"),
     ("10", "Live Camera Viewfinder Photo Capture", "02_ios_sensors_hardware/launch_native_camera.py"),
-    ("11", "Photo Library & Media Album Interface", "02_ios_sensors_hardware/camera_and_photos.py"),
+    ("11", "Front Camera Video Recording (MP4)", "02_ios_sensors_hardware/front_camera_video_recorder.py"),
+    ("12", "Long-Running Background Task Runner", "02_ios_sensors_hardware/background_task_runner.py"),
+    ("13", "Photo Library & Media Album Interface", "02_ios_sensors_hardware/camera_and_photos.py"),
 
     # 3. Native Graphical User Interfaces
-    ("12", "Native iOS UIKit Interface Showcase", "03_native_ui/pyto_ui_showcase.py"),
-    ("13", "Live Animated Inclinometer Leveler (60 FPS)", "03_native_ui/live_sensor_ui.py"),
-    ("14", "Interactive Touch & Color Palette Canvas", "03_native_ui/interactive_canvas_drawing.py"),
+    ("14", "Native iOS UIKit Interface Showcase", "03_native_ui/pyto_ui_showcase.py"),
+    ("15", "Live Animated Inclinometer Leveler (60 FPS)", "03_native_ui/live_sensor_ui.py"),
+    ("16", "Interactive Touch & Color Palette Canvas", "03_native_ui/interactive_canvas_drawing.py"),
 
     # 4. AI & Data Science
-    ("15", "OpenCV Computer Vision & Image Pipeline", "04_ai_machine_learning/cv2_face_and_vision.py"),
-    ("16", "On-Device Scikit-Learn Model Training", "04_ai_machine_learning/sklearn_ml_training.py"),
-    ("17", "Scientific Computing & 1M-pt FFT (NumPy/SciPy)", "04_ai_machine_learning/numpy_scipy_math_engine.py"),
-    ("18", "High-DPI Data Visualization Plots (Matplotlib)", "04_ai_machine_learning/data_visualization_plot.py"),
+    ("17", "OpenCV Computer Vision & Image Pipeline", "04_ai_machine_learning/cv2_face_and_vision.py"),
+    ("18", "On-Device Scikit-Learn Model Training", "04_ai_machine_learning/sklearn_ml_training.py"),
+    ("19", "Scientific Computing & 1M-pt FFT (NumPy/SciPy)", "04_ai_machine_learning/numpy_scipy_math_engine.py"),
+    ("20", "High-DPI Data Visualization Plots (Matplotlib)", "04_ai_machine_learning/data_visualization_plot.py"),
 
     # 5. Local Web Servers & Networking
-    ("19", "iPhone Hosted Web Server & Control Center", "05_networking_servers/iphone_web_server.py"),
-    ("20", "Network Latency Ping & Download Throughput", "05_networking_servers/network_speed_and_ping.py"),
-    ("21", "Live REST API Fetch & JSON Parsing", "05_networking_servers/api_fetch_weather_sample.py"),
+    ("21", "iPhone Hosted Web Server & Control Center", "05_networking_servers/iphone_web_server.py"),
+    ("22", "Network Latency Ping & Download Throughput", "05_networking_servers/network_speed_and_ping.py"),
+    ("23", "Live REST API Fetch & JSON Parsing", "05_networking_servers/api_fetch_weather_sample.py"),
 
     # 6. Widgets & Automations
-    ("22", "Custom Home & Lock Screen Widget", "06_widgets_and_shortcuts/custom_home_widget.py"),
-    ("23", "Apple Shortcuts & Siri Automation", "06_widgets_and_shortcuts/shortcuts_integration.py"),
-    ("24", "iOS External App Launcher & URL Schemes", "06_widgets_and_shortcuts/ios_app_launcher.py"),
+    ("24", "Custom Home & Lock Screen Widget", "06_widgets_and_shortcuts/custom_home_widget.py"),
+    ("25", "Apple Shortcuts & Siri Automation", "06_widgets_and_shortcuts/shortcuts_integration.py"),
+    ("26", "iOS External App Launcher & URL Schemes", "06_widgets_and_shortcuts/ios_app_launcher.py"),
 ]
 
 def clear_screen():
